@@ -1,9 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Header } from "@/components/Layout/Header";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { MainContent } from "@/components/Layout/MainContent";
 import { StatusBar } from "@/components/Layout/StatusBar";
+import { ServerDialog } from "@/components/ServerDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { Server } from "@/types/server";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Mock data
 const mockStats = {
@@ -246,7 +255,33 @@ Blocked connections: 42`,
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [status, setStatus] = useState("Ready");
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const { toast } = useToast();
+  
+  // LocalStorage para servidores
+  const [servers, setServers] = useLocalStorage<Server[]>("vanaci-servers", mockServers);
+  
+  // Calcular estatísticas dinamicamente
+  const stats = useMemo(() => {
+    const online = servers.filter(s => s.status === "online").length;
+    const vulnerabilities = servers.reduce((sum, s) => sum + s.vulnerabilities, 0);
+    const critical = servers.reduce((sum, s) => sum + (s.critical || 0), 0);
+    const patches = 15; // TODO: calcular de patches reais
+    
+    return { online, vulnerabilities, critical, patches };
+  }, [servers]);
+  
+  const handleAddServer = (serverData: Omit<Server, "id">) => {
+    const newServer: Server = {
+      ...serverData,
+      id: Date.now().toString(),
+    };
+    setServers([...servers, newServer]);
+    toast({
+      title: "Servidor Adicionado",
+      description: `${serverData.name} foi adicionado com sucesso!`,
+    });
+  };
 
   const handleUserAction = (action: string) => {
     const messages = {
@@ -288,10 +323,10 @@ const Index = () => {
   };
 
   const handleServerClick = (serverId: string) => {
-    const server = mockServers.find(s => s.id === serverId);
+    const server = servers.find(s => s.id === serverId);
     toast({
-      title: "Server Selected",
-      description: `Viewing details for ${server?.name}`,
+      title: "Servidor Selecionado",
+      description: `A visualizar detalhes de ${server?.name}`,
     });
   };
 
@@ -305,9 +340,10 @@ const Index = () => {
       
       <div className="flex-1 flex">
         <Sidebar
-          stats={mockStats}
-          servers={mockServers}
+          stats={stats}
+          servers={servers}
           onServerClick={handleServerClick}
+          onAddServer={() => setShowAddDialog(true)}
         />
         
         <MainContent
@@ -315,13 +351,13 @@ const Index = () => {
           onTabChange={setActiveTab}
           reportContent={reportTemplates[activeTab as keyof typeof reportTemplates]}
           onRefresh={() => {
-            toast({ title: "Refreshed", description: "Data updated successfully" });
+            toast({ title: "Atualizado", description: "Dados atualizados com sucesso" });
           }}
           onExport={() => {
-            toast({ title: "Export", description: "Report exported successfully" });
+            toast({ title: "Exportar", description: "Relatório exportado com sucesso" });
           }}
           onPrint={() => {
-            toast({ title: "Print", description: "Opening print dialog..." });
+            toast({ title: "Imprimir", description: "A abrir diálogo de impressão..." });
           }}
         />
       </div>
@@ -331,10 +367,19 @@ const Index = () => {
         onAboutClick={() => {
           toast({
             title: "Vanaci Audit v1.0.0",
-            description: "Premium security audit platform by VanaciPrime",
+            description: "Plataforma de auditoria de segurança premium by VanaciPrime",
           });
         }}
       />
+      
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Adicionar Novo Servidor</DialogTitle>
+          </DialogHeader>
+          <ServerDialog onAddServer={handleAddServer} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

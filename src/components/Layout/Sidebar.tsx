@@ -60,6 +60,7 @@ const ServerItem = ({ name, ip, status, vulnerabilities, onClick }: ServerItemPr
   );
 };
 
+
 interface SidebarProps {
   stats: {
     online: number;
@@ -75,9 +76,10 @@ interface SidebarProps {
     vulnerabilities: number;
   }>;
   onServerClick?: (serverId: string) => void;
+  onAddServer?: () => void;
 }
 
-export const Sidebar = ({ stats, servers, onServerClick }: SidebarProps) => {
+export const Sidebar = ({ stats, servers, onServerClick, onAddServer }: SidebarProps) => {
   return (
     <aside className="w-64 border-r border-border bg-muted/30 p-4 space-y-6">
       {/* Statistics Section */}
@@ -98,13 +100,15 @@ export const Sidebar = ({ stats, servers, onServerClick }: SidebarProps) => {
 
       {/* Servers Section */}
       <div>
-        <div className="flex items-center gap-2 mb-4">
-          <Server className="h-4 w-4 text-primary" />
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Monitored Servers
-          </h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Server className="h-4 w-4 text-primary" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Monitored Servers
+            </h3>
+          </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 mb-3">
           {servers.map((server) => (
             <ServerItem
               key={server.id}
@@ -116,6 +120,14 @@ export const Sidebar = ({ stats, servers, onServerClick }: SidebarProps) => {
             />
           ))}
         </div>
+        {onAddServer && (
+          <button
+            onClick={onAddServer}
+            className="w-full p-2 border-2 border-dashed border-border rounded-lg text-xs text-muted-foreground hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2"
+          >
+            <span>+</span> Adicionar Servidor
+          </button>
+        )}
       </div>
     </aside>
   );
