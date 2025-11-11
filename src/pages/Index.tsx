@@ -1,12 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Layout/Header";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { MainContent } from "@/components/Layout/MainContent";
 import { StatusBar } from "@/components/Layout/StatusBar";
 import { ServerDialog } from "@/components/ServerDialog";
 import { useToast } from "@/hooks/use-toast";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Server } from "@/types/server";
+import { Server, Stats } from "@/types/server";
+import { apiClient } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -258,29 +258,60 @@ const Index = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const { toast } = useToast();
   
-  // LocalStorage para servidores
-  const [servers, setServers] = useLocalStorage<Server[]>("vanaci-servers", mockServers);
+  // Estado para servidores e stats da API
+  const [servers, setServers] = useState<Server[]>([]);
+  const [stats, setStats] = useState<Stats>({ online: 0, vulnerabilities: 0, critical: 0, patches: 0 });
+  const [loading, setLoading] = useState(true);
   
-  // Calcular estatísticas dinamicamente
-  const stats = useMemo(() => {
-    const online = servers.filter(s => s.status === "online").length;
-    const vulnerabilities = servers.reduce((sum, s) => sum + s.vulnerabilities, 0);
-    const critical = servers.reduce((sum, s) => sum + (s.critical || 0), 0);
-    const patches = 15; // TODO: calcular de patches reais
-    
-    return { online, vulnerabilities, critical, patches };
-  }, [servers]);
+  // Carregar dados iniciais
+  useEffect(() => {
+    loadData();
+  }, []);
   
-  const handleAddServer = (serverData: Omit<Server, "id">) => {
-    const newServer: Server = {
-      ...serverData,
-      id: Date.now().toString(),
-    };
-    setServers([...servers, newServer]);
-    toast({
-      title: "Servidor Adicionado",
-      description: `${serverData.name} foi adicionado com sucesso!`,
-    });
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [serversData, statsData] = await Promise.all([
+        apiClient.getServers(),
+        apiClient.getStats()
+      ]);
+      setServers(serversData);
+      setStats(statsData);
+    } catch (error) {
+      toast({
+        title: "Erro ao carregar dados",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleAddServer = async (serverData: Omit<Server, "id">) => {
+    try {
+      await apiClient.createServer({
+        name: serverData.name,
+        ip: serverData.ip,
+        status: serverData.status,
+        vulnerabilities: serverData.vulnerabilities,
+        critical: serverData.critical || 0,
+      });
+      
+      toast({
+        title: "Servidor Adicionado",
+        description: `${serverData.name} foi adicionado com sucesso!`,
+      });
+      
+      // Recarregar dados
+      loadData();
+    } catch (error) {
+      toast({
+        title: "Erro ao adicionar servidor",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleUserAction = (action: string) => {
