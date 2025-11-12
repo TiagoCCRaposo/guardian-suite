@@ -8,6 +8,8 @@ import portsRouter from './routes/ports.js';
 import patchesRouter from './routes/patches.js';
 import logsRouter from './routes/logs.js';
 import authRouter from './routes/auth.js';
+import usersRouter from './routes/users.js';
+import { authenticate } from './middleware/auth.js';
 
 dotenv.config();
 
@@ -25,11 +27,14 @@ app.get('/api/health', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRouter);
-app.use('/api/servers', serversRouter);
-app.use('/api/vulnerabilities', vulnerabilitiesRouter);
-app.use('/api/ports', portsRouter);
-app.use('/api/patches', patchesRouter);
-app.use('/api/logs', logsRouter);
+app.use('/api/users', usersRouter);
+
+// Protected routes (require authentication)
+app.use('/api/servers', authenticate, serversRouter);
+app.use('/api/vulnerabilities', authenticate, vulnerabilitiesRouter);
+app.use('/api/ports', authenticate, portsRouter);
+app.use('/api/patches', authenticate, patchesRouter);
+app.use('/api/logs', authenticate, logsRouter);
 
 // Error handler
 app.use((err, req, res, next) => {

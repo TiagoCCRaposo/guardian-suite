@@ -12,6 +12,10 @@ class ApiClient {
     localStorage.setItem('vanaci_token', token);
   }
 
+  getToken() {
+    return this.token;
+  }
+
   clearToken() {
     this.token = null;
     localStorage.removeItem('vanaci_token');
@@ -60,6 +64,35 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ email, password, name }),
     });
+  }
+
+  // Users
+  async getUsers() {
+    return this.request('/users');
+  }
+
+  async createUser(userData: { email: string; password: string; name: string; role: string }) {
+    return this.request('/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async updateUser(id: string, userData: Partial<{ email: string; name: string; password: string; role: string }>) {
+    return this.request(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async deleteUser(id: string) {
+    return this.request(`/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getCurrentUser() {
+    return this.request('/users/me');
   }
 
   // Servers

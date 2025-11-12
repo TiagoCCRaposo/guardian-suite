@@ -1,4 +1,4 @@
-import { Bell, Settings, User, ChevronDown, Server, Shield } from "lucide-react";
+import { Bell, Settings, User, ChevronDown, Server, Shield, Users, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,7 +8,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   onUserAction?: (action: string) => void;
@@ -17,6 +18,14 @@ interface HeaderProps {
 }
 
 export const Header = ({ onUserAction, onToolSelect, onStartScan }: HeaderProps) => {
+  const { user, logout, isAdmin } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <header className="border-b border-border bg-card">
       {/* Top Bar */}
@@ -45,19 +54,20 @@ export const Header = ({ onUserAction, onToolSelect, onStartScan }: HeaderProps)
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>User Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onUserAction?.('info')}>
-                <User className="mr-2 h-4 w-4" />
-                Information
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onUserAction?.('password')}>
-                <Settings className="mr-2 h-4 w-4" />
-                Change Password
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onUserAction?.('logout')}>
-                Logout
+              {isAdmin && (
+                <>
+                  <DropdownMenuItem onClick={() => navigate('/users')}>
+                    <Users className="mr-2 h-4 w-4" />
+                    Gerir Utilizadores
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Terminar Sessão
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
