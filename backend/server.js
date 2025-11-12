@@ -9,6 +9,7 @@ import patchesRouter from './routes/patches.js';
 import logsRouter from './routes/logs.js';
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
+import reportsRouter from './routes/reports.js';
 import { authenticate } from './middleware/auth.js';
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.use('/api/vulnerabilities', authenticate, vulnerabilitiesRouter);
 app.use('/api/ports', authenticate, portsRouter);
 app.use('/api/patches', authenticate, patchesRouter);
 app.use('/api/logs', authenticate, logsRouter);
+app.use('/api/reports', authenticate, reportsRouter);
 
 // Error handler
 app.use((err, req, res, next) => {

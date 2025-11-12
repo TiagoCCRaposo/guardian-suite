@@ -222,6 +222,14 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Reports
+  async importReport(reportData: any, reportType?: string) {
+    return this.request('/reports/import', {
+      method: 'POST',
+      body: JSON.stringify({ reportData, reportType }),
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/Layout/Sidebar";
 import { MainContent } from "@/components/Layout/MainContent";
 import { StatusBar } from "@/components/Layout/StatusBar";
 import { ServerDialog } from "@/components/ServerDialog";
+import { ImportReportDialog } from "@/components/ImportReportDialog";
 import { useToast } from "@/hooks/use-toast";
 import { Server, Stats } from "@/types/server";
 import { apiClient } from "@/lib/api";
@@ -13,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Mock data
 const mockStats = {
@@ -404,11 +406,25 @@ const Index = () => {
       />
       
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Adicionar Novo Servidor</DialogTitle>
+            <DialogTitle>Adicionar Servidor</DialogTitle>
           </DialogHeader>
-          <ServerDialog onAddServer={handleAddServer} />
+          <Tabs defaultValue="manual" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="manual">Manual</TabsTrigger>
+              <TabsTrigger value="import">Importar JSON</TabsTrigger>
+            </TabsList>
+            <TabsContent value="manual" className="mt-4">
+              <ServerDialog onAddServer={handleAddServer} />
+            </TabsContent>
+            <TabsContent value="import" className="mt-4">
+              <ImportReportDialog onImportSuccess={() => {
+                setShowAddDialog(false);
+                loadData();
+              }} />
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>
