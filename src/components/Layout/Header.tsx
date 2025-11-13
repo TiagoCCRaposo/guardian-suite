@@ -28,6 +28,15 @@ export const Header = ({ onUserAction, onToolSelect, onStartScan }: HeaderProps)
 
   return (
     <header className="border-b border-border bg-card">
+      {/* Demo Mode Indicator */}
+      {import.meta.env.VITE_DEMO_MODE === 'true' && (
+        <div className="bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-1 text-center">
+          <p className="text-xs font-semibold text-white tracking-wider">
+            🎭 MODO DEMONSTRAÇÃO - Dados simulados para visualização
+          </p>
+        </div>
+      )}
+      
       {/* Top Bar */}
       <div className="bg-foreground px-6 py-2 flex items-center justify-between">
         <div className="flex items-center gap-6 text-xs text-muted-foreground">
