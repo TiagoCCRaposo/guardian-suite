@@ -1,6 +1,6 @@
 # Guardian Suite
 
-[translate:O **Guardian Suite** é uma ferramenta avançada de segurança para servidores Linux, concebida para identificar vulnerabilidades, monitorizar em tempo real o desempenho dos recursos do sistema (CPU, memória, disco) e gerar relatórios detalhados que ajudam os administradores a manterem ambientes seguros e otimizados.]  
+O **Guardian Suite** é uma ferramenta avançada de segurança para servidores Linux, concebida para identificar vulnerabilidades, monitorizar em tempo real o desempenho dos recursos do sistema (CPU, memória, disco) e gerar relatórios detalhados que ajudam os administradores a manterem ambientes seguros e otimizados.]  
 
 ## 🚀 Funcionalidades
 
