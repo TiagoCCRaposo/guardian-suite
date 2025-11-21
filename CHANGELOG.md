@@ -1,7 +1,7 @@
 ---
 
 ### 2. `CHANGELOG.md`
-Este ficheiro serve para registares o histórico. Comecei com a versão `0.1.0` baseada no que já tens.
+v.0.1.0
 
 ```markdown
 # Changelog
